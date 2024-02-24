@@ -1,17 +1,16 @@
 import http from "http";
 import app from "./app";
-
-import { connectDB } from './config/db.config';
-
-
+import { connectDB } from "./config/db.config";
 
 const PORT = process.env.PORT;
 
-// startServer();
-async function BookHubServer():Promise<void> {
+/**
+ * Function to start the BookHub server
+ */
+async function startBookHubServer(): Promise<void> {
   try {
+    // Connect to the database
     await connectDB();
-
 
     // Create HTTP server
     const server = http.createServer(app);
@@ -21,8 +20,10 @@ async function BookHubServer():Promise<void> {
       console.log(`Server is running on port ${PORT}`);
     });
   } catch (err) {
-        console.log("An error occurred while starting the server:", err);
-    }
-};
+    console.error("An error occurred while starting the server:", err);
+    process.exit(1);
+  }
+}
 
-void BookHubServer();
+// Call the function to start the server
+void startBookHubServer();
