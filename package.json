@@ -4,13 +4,11 @@
   "description": "A web application for managing books",
   "main": "dist/server.js",
   "scripts": {
-    "start": "ts-node src/server.ts",
     "dev": "ts-node-dev src/server.ts ",
-    "start:dev": "nodemon dist/server.js",
+    "start": "nodemon dist/server.js",
     "build": "tsc",
     "lint": "eslint . --ext .js,.ts,",
-    "prestart": "npm run build",
-    "predev": "npm run build"
+    "prestart": "npm run build"
   },
   "keywords": [
     "book",
