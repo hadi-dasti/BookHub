@@ -19,6 +19,7 @@ async function startBookHubServer(): Promise<void> {
     server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
+    
   } catch (err) {
     console.error("An error occurred while starting the server:", err);
     process.exit(1);
