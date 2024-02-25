@@ -1,12 +1,11 @@
-import { Document } from "mongoose";
-import { IBook } from "../../../book/model/interface/book.bookhub.interface";
-import { IUser } from "../../../user/model/interface/user.bookhub.interface";
+import mongoose, { Types, Document } from "mongoose";
+
 
 
 export interface IOrderBook extends Document {
-  user: IUser["_id"];
-  book: IBook["_id"];
+  userId: string;
+  bookId:string;
   quantity: number;
   totalPrice: number;
-  status: "pending"|"confirmed"|"shipped"|"delivered";
+  status: "pending" | "confirmed" | "shipped" | "delivered";
 }

@@ -2,54 +2,59 @@ import { Request, Response } from "express";
 import { OrderBook } from "../model/schema/orderbook.bookhub.schema";
 import { IOrderBook } from "../model/interface/orderbook.bookhub.interface";
 import { User } from "./../../user/model/schema/user.bookhub.schema";
-import { IUser } from "./../../user/model/interface/user.bookhub.interface";
+
+
 
 
 export class OrderBookController {
     
     public async buildOrderBook(req: Request, res: Response): Promise<Response> {
         try {
-            const { user, book, quantity, totalPrice, status } = req.body;
+          const { userId, bookId, quantity, totalPrice, status } = req.body;
 
-            // Create new OrderBook instance
-            const createOrderBook: IOrderBook = new OrderBook({
-                user,
-                book,
-                quantity,
-                totalPrice,
-                status,
+         
+
+          // Create new OrderBook instance
+          const createOrderBook: IOrderBook = new OrderBook({
+            userId,
+            bookId,
+            quantity,
+            totalPrice,
+            status,
+          });
+
+          // Save the new OrderBook
+          const newOrderBook = await createOrderBook.save();
+
+          if (!newOrderBook) {
+            return res.status(400).json({
+              success: false,
+              msg: "Failed to create order book",
             });
+          }
 
-            // Save the new OrderBook
-            const newOrderBook = await createOrderBook.save();
+          // Update user's orders
+          const updatedUser = await User.findByIdAndUpdate(userId,
+              {
+                  $push: { orders: newOrderBook._id }
+              },
+            { new: true }
+          );
 
-            if (!newOrderBook) {
-                return res.status(400).json({
-                    success: false,
-                    msg: "Failed to create order book",
-                });
-            }
-
-            // Update user's orders
-            const updatedUser: IUser = await User.findByIdAndUpdate(
-                user,
-                { $push: { orders: newOrderBook._id } },
-                { new: true }
-            );
-
-            if (!updatedUser) {
-                return res.status(404).json({
-                    success: false,
-                    msg: "Failed to update user's orders",
-                });
-            }
-
-            return res.status(201).json({
-                success: true,
-                data: newOrderBook,
-                msg: "Order book created successfully",
+          if (!updatedUser) {
+            return res.status(404).json({
+              success: false,
+              msg: "Failed to update user's orders",
             });
+          }
+
+          return res.status(201).json({
+            success: true,
+            data: newOrderBook,
+            msg: "Order book created successfully",
+          });
         } catch (err) {
+            console.log(err)
             return res.status(500).json({
                 success: false,
                 msg: "Internal Server Error",
@@ -60,48 +65,83 @@ export class OrderBookController {
     public async getOrderBook(req: Request, res: Response): Promise<Response> {
         try {
             const orderBooks: IOrderBook[] = await OrderBook.aggregate([
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "user",
-                        foreignField: "_id",
-                        as: "user",
-                    },
+              {
+                $match: {
+                  status: "pending",
                 },
-                {
-                    $unwind: "$user",
+              },
+              {
+                $lookup: {
+                  from: "users",
+                  localField: "orders",
+                  foreignField: "userId",
+                  as: "user",
                 },
-                {
-                    $lookup: {
-                        from: "books",
-                        localField: "book",
-                        foreignField: "_id",
-                        as: "book",
-                    },
+              },
+              {
+                $unwind: "$user",
+              },
+              {
+                $lookup: {
+                  from: "books",
+                  localField: "orders",
+                  foreignField: "bookId",
+                  as: "book",
                 },
-                {
-                    $unwind: "$book",
+              },
+              {
+                $group: {
+                  _id: "$_id",
+                  userId: { $first: "$userId" },
+                  bookId: { $first: "$bookId" },
+                  quantity: { $first: "$quantity" },
+                  totalPrice: { $first: "$totalPrice" },
+                  status: { $first: "$status" },
+                  createdAt: { $first: "$createdAt" },
+                  updatedAt: { $first: "$updatedAt" },
+                  user: { $first: "$user" },
+                  book: { $first: "$book" },
                 },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  userId: "$user._id",
+                  bookId: "$book._id",
+                  quantity: 1,
+                  totalPrice: 1,
+                  status: 1,
+                  createdAt: 1,
+                  updatedAt: 1,
+                  user: {
+                    _id: 1,
+                    fullName: 1,
+                    email: 1,
+                    nationalCode: 1,
+                    gender: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                  },
+                  book: {
+                    _id: 1,
+                    title: 1,
+                    author: 1,
+                    genre: 1,
+                    description: 1,
+                    countBook: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                  },
+                },
+              },
                 {
                     $facet: {
                         data: [
-                            { $sort: { createdAt: -1 } }, // Sort by createdAt field in descending order
-                            { $skip: 0 }, // Skip 0 documents
-                            { $limit: 10 }, // Limit the results to 10 documents
+                            { $sort: { createdAt: -1 } }, 
+                            { $skip: 0 }, 
+                            { $limit: 10 }, 
                         ],
                         totalCount: [{ $count: "total" }],
-                    },
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        quantity: 1,
-                        totalPrice: 1,
-                        status: 1,
-                        "user._id": 1,
-                        "user.fullName": 1,
-                        "book._id": 1,
-                        "book.title": 1,
                     },
                 },
             ]);
@@ -112,6 +152,7 @@ export class OrderBookController {
                 msg: "Order books retrieved successfully",
             });
         } catch (err) {
+            console.log(err)
             return res.status(500).json({
                 success: false,
                 msg: "Internal Server Error",
@@ -128,7 +169,7 @@ export class OrderBookController {
             if (!orderBookId) {
                 return res.status(400).json({
                     success: false,
-                    msg: "Order ID is required",
+                    msg: "Order Book ID is required",
                 });
             }
             const updatedOrderBook: IOrderBook = await OrderBook.findByIdAndUpdate(
@@ -163,7 +204,8 @@ export class OrderBookController {
 
     public async deleteOrderBook(req: Request, res: Response): Promise<Response> {
         try {
-            const { orderBookId } = req.params;
+          const { orderBookId } = req.params;
+          const { userId } = req.body;
 
             const orderBookToDelete = await OrderBook.findById(orderBookId);
 
@@ -174,11 +216,10 @@ export class OrderBookController {
                 });
             }
         
-            const updatedUser = await User.findByIdAndUpdate(
-                orderBookToDelete.user,
-                { $pull: { orders: orderBookToDelete } },
-                { new: true }
-            );
+          const updatedUser = await User.findByIdAndUpdate(userId,
+            { $pull: { orders: orderBookToDelete._id } },
+            { new: true }
+          );
 
             if (!updatedUser) {
                 return res.status(404).json({
