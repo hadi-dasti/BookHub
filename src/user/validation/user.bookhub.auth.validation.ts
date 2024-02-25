@@ -10,7 +10,7 @@ enum Gender {
 export const validateSignupInput = (req: Request, res: Response, next: NextFunction) => {
     
   const userSchema = Joi.object({
-    fullName: Joi.string().alphanum().min(3).max(10).required().messages({
+    fullName: Joi.string().min(3).max(10).required().messages({
       "string.alphanum": "fullName must only contain alpha-numeric characters",
       "string.min": "fullName must be at least {{#limit}} characters long",
       "string.max": "fullName cannot be longer than {{#limit}} characters",
@@ -46,7 +46,7 @@ export const validateSignupInput = (req: Request, res: Response, next: NextFunct
 
   //define handel error for req.body of signup user
   try {
-    const { error } = userSchema.validate(req.body, { abortEarly: false });
+    const { error } = userSchema.validate(req.body, { abortEarly: true });
     if (error) {
       const errors = error.details.map((detail) => detail.message);
       return res.status(400).json({

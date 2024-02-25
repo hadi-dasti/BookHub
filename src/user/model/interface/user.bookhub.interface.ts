@@ -1,4 +1,6 @@
-import { Document} from 'mongoose';
+import { Document, Types} from 'mongoose';
+import { IOrderBook } from "../../../order-book/model/interface/orderbook.bookhub.interface";
+
 
 export interface IUser extends Document {
   fullName: string;
@@ -6,8 +8,10 @@ export interface IUser extends Document {
   password: string;
   nationalCode: string;
   gender: "MALE" | "FEMALE";
-  comparePassword: (password: string) => Promise<boolean>;
+  isComparePassword: (password: string) => Promise<boolean>;
   refreshToken?: string;
-  generateAccessToken(): string;
-  generateRefreshToken(): string;
+  refreshTokenExpiresAt: Date;
+  generateAccessTokenUser: () => string;
+  generateRefreshTokenUser: () => string;
+  orders: Types.ObjectId | IOrderBook;
 }

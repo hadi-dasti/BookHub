@@ -1,28 +1,21 @@
 import { Schema, model } from "mongoose";
 import jwt, { Secret } from "jsonwebtoken";
+import * as bcrypt from "bcryptjs";
 import { IUser } from '../interface/user.bookhub.interface';
-import { hashPassword, comparePassword } from '../../utils/user.password.utils';
-import {
-  JWT_SECRET,
-  JWT_ACCESS_TOKEN_EXPIRATION_TIME,
-  JWT_REFRESH_TOKEN_EXPIRATION_TIME,
-} from "../../../config/config";
+import { JWT_SECRET, JWT_ACCESS_TOKEN_EXPIRATION_TIME, JWT_REFRESH_TOKEN_EXPIRATION_TIME } from "../../../config/config";
 
 
 
 const userSchema = new Schema<IUser>(
   {
     fullName: { type: String, required: true },
-    email: { type: String, isEmail: true, required: true, unique: true },
-    password: {
-      type: String,
-      unique: false,
-      minlength: 8,
-      select: false,
-    },
+    email: { type: String, isEmail: true, required: true },
+    password: { type: String, minlength: 8, select: false },
     nationalCode: { type: String, minlength: 9, unique: true },
     gender: { type: String, enum: ["MALE", "FEMALE"] },
     refreshToken: { type: String, select: false },
+    refreshTokenExpiresAt: { type: Date, select: false },
+    orders: [{ type: Schema.Types.ObjectId, ref: "OrderBook" }],
   },
   {
     timestamps: true,
@@ -30,41 +23,34 @@ const userSchema = new Schema<IUser>(
 );
 
 userSchema.pre<IUser>("save", async function (next) {
-    const user = this;
-    if (!user.isModified("password")) {
-        return next();
-    }
-    
-    try {
-        this.password = await hashPassword(this.password);
-        next();
-    } catch (err) {
-        return next(err)
-    }
+  const user = this
+  if (!user.isModified("password")) {
+    return next();
+  }
+
+    // hash password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(user.password, salt);
+    next();
+  
 });
 
-userSchema.methods.comparePassword = async function (password: string) {
-    return await comparePassword(password, this.password);
+// compare password
+userSchema.methods.isComparePassword = async function (password: string) {
+  return await bcrypt.compare(password, this.password);
 };
 
 // create accessToken for user with userId
 userSchema.methods.generateAccessTokenUser = function () {
-  const accessToken = jwt.sign({ userId: this._id }, JWT_SECRET as Secret, {
+   return jwt.sign({ userId: this._id }, JWT_SECRET as Secret, {
     expiresIn: JWT_ACCESS_TOKEN_EXPIRATION_TIME,
   });
-  return accessToken;
 };
 
 // create refreshToken for employee with userId
 userSchema.methods.generateRefreshTokenUser = function () {
-  const refreshToken = jwt.sign(
-    { userId: this._id },
-    JWT_SECRET as Secret,
-    { expiresIn: JWT_REFRESH_TOKEN_EXPIRATION_TIME }
-  );
-  return refreshToken;
+  return jwt.sign({ userId: this._id }, JWT_SECRET as Secret, { expiresIn: JWT_REFRESH_TOKEN_EXPIRATION_TIME });
 };
-
 
 
 // Create a Model.

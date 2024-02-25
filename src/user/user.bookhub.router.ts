@@ -3,12 +3,12 @@ import { UserAuthController } from "./controller/uesr.bookhub.auth.controller";
 import { UserRefreshTokenController } from "./controller/user.bookhub.refresh.controller";
 import { validateSignupInput, validateLoginInput } from "./validation/user.bookhub.auth.validation";
 import { validateUserRefreshTokenInput, validateUserLogout, } from "./validation/user.boothub.refresh.validation";
-// import { userSwaggerPaths } from './user.bookhub.swagger';
+
 
 // Create an instance of the Express router
 const router: Router = Router();
 
-
+// Instantiate controllers
 const userAuthController = new UserAuthController();
 const userRefreshTokenController = new UserRefreshTokenController();
 
@@ -17,11 +17,11 @@ router.post('/signup', validateSignupInput, userAuthController.registerUserBookH
 router.post('/login', validateLoginInput, userAuthController.loginUserBookHub);
 
 
-// User Refresh Token Routes
+// User Refresh Token routes
 router.post('/refresh-token',validateUserRefreshTokenInput, userRefreshTokenController.userRefreshToken);
 router.delete('/logout',validateUserLogout, userRefreshTokenController.logoutUser);
 
 
 export default router;
 
-// export { userSwaggerPaths };
+

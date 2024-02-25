@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-export const verifyAccessToken = async (req: Request, res: Response, next: NextFunction) => {
+export const VerifyAccessTokenUser = async (req: Request, res: Response, next: NextFunction) => {
   
   try {
     // Get the Authorization header and remove the "Bearer " prefix

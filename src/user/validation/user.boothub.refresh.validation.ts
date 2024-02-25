@@ -8,7 +8,7 @@ export const validateUserRefreshTokenInput = (req: Request, res: Response, next:
         "string.base": "Uesr ID must be a string",
         "string.empty": "User ID is required",
       }),
-      refreshToken: Joi.string().required().valid(Joi.ref("userId")).messages({
+      refreshToken: Joi.string().required().messages({
         "string.base": "Refresh Token must be a string",
         "string.empty": "Refresh Token is required",
         "any.only": "Refresh Token must match User ID",
