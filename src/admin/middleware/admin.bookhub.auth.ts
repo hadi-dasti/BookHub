@@ -7,37 +7,43 @@ import { IAdmin } from "../model/admin.bookhub.interface";
 interface DecodedToken {
   adminId: string;
 }
+
+// Middleware function for admin authorization
 export const AdminAuthMiddleware = async(req: Request, res: Response, next: NextFunction) => {
     try {
+      const token = req.header("Authorization")?.replace("Bearer ", "");
 
-        const token = req.header("Authorization")?.replace("Bearer ", "");
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          msg: "Authorization token is missing",
+        });
+      }
+      // Verify and decode the token
+      const decoded: DecodedToken = jwt.verify(
+        token,
+        JWT_SECRET_ADMIN!
+      ) as DecodedToken;
 
-        if (!token) {
-            return res.status(401).json({
-                success: false,
-                msg: 'Authorization token is missing'
-            });
+      // Find admin based on decoded admin ID
+      const admin: IAdmin | null = await Admin.findById(decoded.adminId);
+
+      if (!admin) {
+        return res.status(401).json({
+          sucess: false,
+          msg: "Admin not found",
+        });
         }
-        const decoded: DecodedToken = jwt.verify(token,JWT_SECRET_ADMIN!) as DecodedToken;
+        
+      // Check if admin has admin rule
+      if (admin.rule !== "admin") {
+        return res.status(403).json({
+          sucess: false,
+          message: "Unauthorized access",
+        });
+      }
 
-        const admin: IAdmin | null = await Admin.findById(decoded.adminId);
-
-        if (!admin) {
-            return res.status(401).json({
-                sucess:false,
-                msg: "Admin not found"
-            });
-        }
-
-        if (admin.rule !== "admin") {
-            return res.status(403).json({
-                sucess:false,
-                message: "Unauthorized access"
-            });
-        }
-      
-        return next();
-
+      return next();
     } catch (err) {
         return res.status(401).json({
           sucess: false,

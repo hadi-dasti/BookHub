@@ -1,8 +1,9 @@
 import { Schema, model } from "mongoose";
 import jwt, { Secret } from "jsonwebtoken";
+import * as bcrypt from "bcryptjs";
 import { IAdmin } from "./admin.bookhub.interface";
 import { JWT_SECRET_ADMIN, JWT_ACCESS_TOKEN_EXPIRATION_TIME_ADMIN } from "../../config/config";
-import { hashPasswordAdmin } from "../utils/admin.password.utile";
+
 
 const adminSchema = new Schema<IAdmin>({
   username: { type: String, required: true, unique: true },
@@ -15,21 +16,21 @@ const adminSchema = new Schema<IAdmin>({
     timestamps: true
   });
 
-
-adminSchema.pre<IAdmin>('save', async function (next) {
+// Middleware to hash admin's password before saving
+adminSchema.pre<IAdmin>("save", async function (next) {
   try {
-
     const admin = this;
-
     if (!admin.isModified("password")) {
       return next();
     }
 
-    this.password = await hashPasswordAdmin(this.password);
-
+    // hash password
+    const salt = await bcrypt.genSalt(10);
+    admin.password = await bcrypt.hash(admin.password, salt);
     return next();
   } catch (err) {
-    console.log(err);
+    console.error("Error hashing password:", err);
+    return next(err)
   }
 });
 
