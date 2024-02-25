@@ -12,7 +12,7 @@ router.use('/user', userBookHubRouter);
 
 router.use('/book', bookBookHubRouter);
 
-router.use('/order-book', orderBookHubRouter);
+router.use('/book-order', orderBookHubRouter);
 
 router.use('/admin', adminBookHubRouter);
 
