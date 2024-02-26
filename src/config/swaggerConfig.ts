@@ -12,6 +12,7 @@ const options: swaggerJSDoc.Options = {
     servers: [
       {
         url: "http://5.161.176.75/v1/book-hub",
+        // url: "http://localhost:3000/v1/book-hub",
       },
     ],
   },

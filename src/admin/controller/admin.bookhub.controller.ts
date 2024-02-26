@@ -24,7 +24,7 @@ export class AdminController {
         success: true,
         data: {
           adminToken,
-          newAdmin: newAdmin.serialize,
+          newAdmin: newAdmin.serialize(),
         },
         msg: "Admin created successfully",
       });

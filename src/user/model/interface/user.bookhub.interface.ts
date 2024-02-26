@@ -1,6 +1,5 @@
-import { Document, Types} from 'mongoose';
+import { Document, Types } from "mongoose";
 import { IOrderBook } from "../../../order-book/model/interface/orderbook.bookhub.interface";
-
 
 export interface IUser extends Document {
   fullName: string;
@@ -14,4 +13,5 @@ export interface IUser extends Document {
   generateAccessTokenUser: () => string;
   generateRefreshTokenUser: () => string;
   orders: Types.ObjectId | IOrderBook;
+  serialize: () => any;
 }
