@@ -9,7 +9,7 @@
     "allowSyntheticDefaultImports": true,
      "allowJs": false, 
     "target": "es2016",
-    "sourceMap": true,
+    "sourceMap": false,
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
