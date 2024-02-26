@@ -9,6 +9,7 @@ import { error } from "./error/error.bookhub.app";
 const app = express();
 
 // Middleware to parse JSON request bodies
+app.disable("x-powered-by")
 app.use(express.json());
 app.use(cors({ origin: true, credentials: true, optionsSuccessStatus: 204 }));
 app.use(morgan("dev"));
