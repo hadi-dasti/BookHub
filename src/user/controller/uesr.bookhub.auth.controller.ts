@@ -7,13 +7,13 @@ export class UserAuthController {
   // Register a new user
   public async registerUserBookHub(req: Request,res: Response): Promise<Response> {
     try {
-      const { fullName, email, password, nationalCode, gender } = req.body;
+      const { fullName, email, password:pass, nationalCode, gender } = req.body;
       
       // Create a new user
-      const createUser: IUser = await User.create({
+      const {password,...createUser}: IUser = await User.create({
         fullName,
         email,
-        password,
+        password:pass,
         nationalCode,
         gender,
       });
