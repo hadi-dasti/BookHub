@@ -2,22 +2,24 @@ import { Request, Response } from "express";
 import { User } from "../model/schema/user.bookhub.schema";
 import { IUser } from "../model/interface/user.bookhub.interface";
 
-
 export class UserAuthController {
   // Register a new user
-  public async registerUserBookHub(req: Request,res: Response): Promise<Response> {
+  public async registerUserBookHub(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
     try {
-      const { fullName, email, password:pass, nationalCode, gender } = req.body;
-      
+      const { fullName, email, password, nationalCode, gender } = req.body;
+
       // Create a new user
-      const {password,...createUser}: IUser = await User.create({
+      const createUser: IUser = await User.create({
         fullName,
         email,
-        password:pass,
+        password,
         nationalCode,
         gender,
       });
-     
+
       if (!createUser) {
         return res.status(400).json({
           success: false,
@@ -27,12 +29,11 @@ export class UserAuthController {
 
       return res.status(201).json({
         success: true,
-        data: createUser,
+        data: createUser.serialize(),
         msg: "User created successfully",
       });
-
     } catch (err) {
-      console.log(err)
+      console.log(err);
       return res.status(500).json({
         success: false,
         msg: "internal Server Error",
@@ -57,10 +58,9 @@ export class UserAuthController {
           msg: "User not found",
         });
       }
-     
+
       // Validate the password
       const isPasswordValid = await user.isComparePassword(password);
-      
 
       if (!isPasswordValid) {
         return res.status(401).json({
@@ -68,10 +68,9 @@ export class UserAuthController {
           msg: "Invalid password",
         });
       }
-     
+
       const accessTokens = user.generateAccessTokenUser();
       const refreshTokens = user.generateRefreshTokenUser();
-
 
       // Save the refresh token to the user document
       user.refreshToken = refreshTokens;
@@ -83,11 +82,10 @@ export class UserAuthController {
         success: true,
         accessTokens,
         refreshTokens,
-        msg : "successfully create login user in bookHub"
+        msg: "successfully create login user in bookHub",
       });
-      
     } catch (err) {
-      console.log(err)
+      console.log(err);
       return res.status(500).json({
         success: false,
         msg: "Iteral Server Error",

@@ -1,10 +1,12 @@
 import { Schema, model } from "mongoose";
 import jwt, { Secret } from "jsonwebtoken";
 import * as bcrypt from "bcryptjs";
-import { IUser } from '../interface/user.bookhub.interface';
-import { JWT_SECRET, JWT_ACCESS_TOKEN_EXPIRATION_TIME, JWT_REFRESH_TOKEN_EXPIRATION_TIME } from "../../../config/config";
-
-
+import { IUser } from "../interface/user.bookhub.interface";
+import {
+  JWT_SECRET,
+  JWT_ACCESS_TOKEN_EXPIRATION_TIME,
+  JWT_REFRESH_TOKEN_EXPIRATION_TIME,
+} from "../../../config/config";
 
 const userSchema = new Schema<IUser>(
   {
@@ -23,16 +25,15 @@ const userSchema = new Schema<IUser>(
 );
 
 userSchema.pre<IUser>("save", async function (next) {
-  const user = this
+  const user = this;
   if (!user.isModified("password")) {
     return next();
   }
 
-    // hash password
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(user.password, salt);
-    next();
-  
+  // hash password
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(user.password, salt);
+  next();
 });
 
 // compare password
@@ -42,16 +43,30 @@ userSchema.methods.isComparePassword = async function (password: string) {
 
 // create accessToken for user with userId
 userSchema.methods.generateAccessTokenUser = function () {
-   return jwt.sign({ userId: this._id }, JWT_SECRET as Secret, {
+  return jwt.sign({ userId: this._id }, JWT_SECRET as Secret, {
     expiresIn: JWT_ACCESS_TOKEN_EXPIRATION_TIME,
   });
 };
 
 // create refreshToken for employee with userId
 userSchema.methods.generateRefreshTokenUser = function () {
-  return jwt.sign({ userId: this._id }, JWT_SECRET as Secret, { expiresIn: JWT_REFRESH_TOKEN_EXPIRATION_TIME });
+  return jwt.sign({ userId: this._id }, JWT_SECRET as Secret, {
+    expiresIn: JWT_REFRESH_TOKEN_EXPIRATION_TIME,
+  });
 };
 
+//Method to serialize Admin object
+userSchema.methods.serialize = function (): any {
+  return {
+    fullName: this.fullName,
+    email: this.email,
+    nationalCode: this.nationalCode,
+    gender: this.gender,
+    refreshToken: this.refreshToken,
+    refreshTokenExpiresAt: this.refreshTokenExpiresAt,
+    orders: this.orders,
+  };
+};
 
 // Create a Model.
 export const User = model<IUser>("User", userSchema);
