@@ -10,7 +10,7 @@ const app = express();
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
-app.use(cors({ origin: "*", credentials: true, optionsSuccessStatus: 204 }));
+app.use(cors({ origin: true, credentials: true, optionsSuccessStatus: 204 }));
 app.use(morgan("dev"));
 app.set("trust proxy", true);
 
