@@ -10,8 +10,8 @@ const app = express();
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
-app.use(cors({ origin: "*", credentials: true }));
-app.use(morgan("combined"));
+app.use(cors({ origin: "*", credentials: true, optionsSuccessStatus: 204 }));
+app.use(morgan("dev"));
 app.set("trust proxy", true);
 
 // Serve Swagger UI documentation
