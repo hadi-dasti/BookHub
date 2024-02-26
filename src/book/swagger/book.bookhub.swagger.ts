@@ -1,6 +1,6 @@
 /**
  * @swagger
- * /create:
+ * /book/create:
  *   post:
  *     summary: Create a new book
  *     description: Endpoint to create a new book in the system
@@ -51,7 +51,7 @@
 
 /**
  * @swagger
- * /getall-book:
+ * /book/getall-book:
  *   get:
  *     summary: Get all books grouped by genre
  *     description: Endpoint to get all books grouped by genre
@@ -96,7 +96,7 @@
 
 /**
  * @swagger
- * /get-one-book/{bookId}:
+ * /book/get-one-book/{bookId}:
  *   get:
  *     summary: Get a single book by ID
  *     description: Retrieve a book by its ID
@@ -148,7 +148,7 @@
 
 /**
  * @swagger
- * /update-book/{bookId}:
+ * /book/update-book/{bookId}:
  *   put:
  *     summary: Update a book by ID
  *     description: Update a book by its ID
@@ -206,7 +206,7 @@
 
 /**
  * @swagger
- * /delete-book/{bookId}:
+ * /book/delete-book/{bookId}:
  *   delete:
  *     summary: Delete a book by ID
  *     description: Delete a book by its ID
@@ -309,7 +309,7 @@
 
 /**
  * @swagger
- * /create:
+ * /book/create:
  *   post:
  *     tags:
  *       - Books

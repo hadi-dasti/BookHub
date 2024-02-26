@@ -1,6 +1,6 @@
 /**
  * @swagger
- * /signup:
+ * /user/signup:
  *   post:
  *     summary: Register a new user
  *     description: Register a new user in the system
@@ -76,7 +76,7 @@
 
 /**
  * @swagger
- * /login:
+ * /user/login:
  *   post:
  *     summary: Login a user
  *     description: Login an existing user in the system
@@ -159,7 +159,7 @@
 
 /**
  * @swagger
- * /refresh-token:
+ * /user/refresh-token:
  *   post:
  *     summary: RefreshToken user acces newtoken 
  *     description: Refresh user's access token using a valid refresh token
@@ -258,7 +258,7 @@
 
 /**
  * @swagger
- * /logout:
+ * /user/logout:
  *   delete:
  *     summary: Logout user
  *     description: Clear the refresh token associated with the user, effectively logging them out.

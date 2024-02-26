@@ -1,6 +1,6 @@
 /**
  * @swagger
- *   /build-book-order:
+ *   /book-order/build-book-order:
  *     post:
  *       tags:
  *         - order-book
@@ -106,7 +106,7 @@
 
 /**
  * @swagger
- *   /show-book-order:
+ *   /book-order/show-book-order:
  *     get:
  *       tags:
  *         - order-book
@@ -177,7 +177,7 @@
 
 /**
  * @swagger
- *   /update-order-book/{orderBookId}:
+ *   /book-order/update-order-book/{orderBookId}:
  *     put:
  *       tags:
  *         - order-book
@@ -268,7 +268,7 @@
 
 /**
  * @swagger
- *   /delete-order-book/{orderBookId}:
+ *   /book-order/delete-order-book/{orderBookId}:
  *     delete:
  *       tags:
  *         - order-book
